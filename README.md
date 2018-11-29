@@ -1,3 +1,3 @@
 # 2018 GGG201a: Introduction to R
 
-RStudio: [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/binder-examples/r/master?urlpath=rstudio)
+Launch Binder: [![Binder](http://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/ngs-docs/2018-ggg201a.git/master)
