@@ -1,0 +1,176 @@
+---
+title: "GGG 201a Intro to R 1 Notes"
+author: "Taylor Reiter"
+date: "11/29/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, include = TRUE)
+```
+
+This is an R script. It keeps track of our code. We have written this script so that it is completely repeatable. Even the download links to get the data we will be using are present so anyone could pick of this script and run it. 
+
+Our script starts out like this:
+
+```{r cars}
+##############
+# 11/30/18
+# GGG 201a
+# Intro to R 1
+##############
+
+# This lesson is adapted from:
+# http://evomics.org/learning/programming/introduction-to-r/
+# this lesson material is available at:
+# https://github.com/ngs-docs/2018-ggg201a
+```
+
+Each line begins with a `#`. Any line in a script that begins with a `#` demarcates it as a comment. Comments are a useful way to give context to your code. They remind other people (including your future self) what the code does, can give attribution to sources, and help with organization. 
+
+Next, we load package libraries that allow R to do new things
+```{r libraries}
+library(tidyverse)
+library(vegan)
+library(pheatmap)
+```
+
+Then we download files that contain our data. These four lines of code introduce the syntax of R. 
+
+`url` is an object. We assign it some value, and that value is remembered by R. Objects have different types, and you will see a few of those types today. 
+
+`url` is currently a `character` vector. We know it is a character because it is in quotes. Vectors are objects that only have lengths. They can have a length of one, or can be really long. Our vector has length one, since it only has one character string in it. 
+
+`<-` is an assignment arrow. We assign `url` to the value `"http://evomicsorg.wpengine.netdna-cdn.com/wp-content/uploads/2013/01/myoviridae_healthy.txt"`. R remembers what each object contains when you use the assignment arrow. 
+
+`()` indicate that something is a `function`. That means that it **does** something. Here, the function takes a url, downloads it from the internet, and saves it to a destination file on our local computers. This function takes the `arguments` `url` and `destfile`. 
+
+```{r download}
+# Download data files
+url <- "https://raw.githubusercontent.com/ngs-docs/2018-ggg201a/master/data/myoviridae.csv"
+download.file(url = url, destfile = "myoviridae.csv")
+```
+
+To bring the data into R, we use the function `read.csv`. We give it the file name on our computer, and in this case, we say that we would like the first column to contain our rownames.
+
+rownames must be unique. Sometimes they can be handy to keep track of sample or gene information when a function requires only numeric data. We will see an example of this later. 
+
+```{r read_myov}
+# Read data into R
+myov <- read.csv(file = "myoviridae.csv", row.names = 1)
+```
+
+Let's take a look at what is in our data.
+
+```{r, include = F}
+# look at the top of each file
+head(myov)
+summary(myov)
+```
+
+We see that reading a csv into R made a `data.frame`, an object class that is very similar in structure to a spreadsheet. This `data.frame` is made of count data from viruses. 
+
+We also have metadata to accompany our count file. We can download it and read into R the same way we did before. 
+
+```{r}
+# Download metadata file
+url <- "https://raw.githubusercontent.com/ngs-docs/2018-ggg201a/master/data/metadata.csv"
+download.file(url = url, destfile = "metadata.csv")
+```
+
+You can see from the above code that we define `url` a second time. When you use to `<-` assignment arrow in R, you overwrite the object if it already exists and give it a new value.
+
+```{r}
+# Read data into R
+metadata <- read.csv("metadata.csv")
+```
+
+When we take a look at this data, we see that it contains information about subject age and disease state. 
+```{r}
+# look at the top of the file
+head(metadata)
+summary(metadata)
+```
+
+We can also use the square brackets `[]` to subset our `data.frame` in a specific way.
+```{r}
+# look at the first column of the metadata file
+metadata[ , 1]
+```
+
+let's take a look at `Age` between each dataset.
+We use ggplot2 to do this. ggplot2 uses layers to build a graph. 
+
+```{r}
+# plot the age of healthy and sick patients
+ggplot(data = metadata, aes(x = Diagnosis, y = Age)) +
+  geom_boxplot() + 
+  geom_jitter() +
+  ggtitle("Comparison of Age Between Groups")
+```
+
+Before looking at the count data, let's transform it. 
+
+```{r}
+# transform the count data
+myov_total <- decostand(myov, method="total")
+```
+
+To see what the `decostand()` function does, check the help file. 
+```{r}
+?decostand()
+```
+
+ggplot2 likes to have data in long form. We can transform our data with a few steps. 
+
+First, we have to move the rownames, which contain sample information, into a column. We'll make a new dataframe to do this because we will still want to use the original dataframe later. 
+
+```{r}
+# move the rownames into a column
+myov_total_labeled <- myov_total
+myov_total_labeled$X <- rownames(myov_total)
+```
+
+Next we will do the wide-to-long transformation with the function `gather()`
+```{r}
+# change the format of the count data
+myov_long <- gather(data = myov_total_labeled, key = species, value = count, -X)
+head(myov_long)
+```
+
+Then we'll combine the long count data with metadata. This way we can add metadata information like disease state to our plot. 
+```{r}
+# join the count data with metadata
+all_data <- left_join(myov_long, metadata, by = "X")
+```
+
+There are a lot of species in our data. We can subsample to a smaller set of species using functiongs in dplyr.
+
+```{r}
+# pull out key species in myov data
+key_species <- c("Tevenvirinae", "Punalikevirus", "Clostridium_phase_c.st", "PhiCD119likevirus")
+
+key_species_data <- all_data %>%
+                      filter(species %in% key_species)
+```
+
+Using our new dataframe, we can make a plot of a few species that interest us. 
+```{r}
+# plot the abundances of key species in the myov object
+ggplot(data = key_species_data, aes(x = Diagnosis, y = count)) +
+  geom_boxplot() +
+  geom_jitter() +
+  facet_wrap(~ species)
+```
+
+To look at all species at once, we can plot a heatmap.
+```{r heatmap, fig.width = 10, fig.height=8}
+# plot a heatmap of all species
+plt <- pheatmap(myov_total, cellwidth=8, cellheight=8, main="Healthy vs. Sick")
+```
+
+Lastly, we may want to export one of our dataframes to a file to use later. We can do that with the `write.csv()` function. 
+```{r}
+# export the transformed data that went into the heatmap
+write.csv(myov_total, "myoviridae_total.csv", quote = F)
+```
