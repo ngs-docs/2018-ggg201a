@@ -1,4 +1,6 @@
-install.packages("tidyverse")
+install.packages("ggplot2")
+install.packages("tidyr")
+install.packages("dplyr")
 install.packages("vegan")
 install.packages("pheatmap")
 source("https://bioconductor.org/biocLite.R")
