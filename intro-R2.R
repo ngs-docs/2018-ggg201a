@@ -7,19 +7,20 @@
 # this lesson material is available at:
 # https://github.com/ngs-docs/2018-ggg201a
 
-setwd("~/github/2018-ggg201a/")
-
 # Installing packages in R ------------------------------------------------
 
 # If the package lives on CRAN
 install.packages("devtools")
-install.packages(c("RColorBrewer", "ggthemes", "sf"))
+install.packages(c("RColorBrewer", "ggthemes"))
 
 # If the package lives on Bioconductor
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("GenomicFeatures", version = "3.8")
-BiocManager::install(c("ggbio", "GenomicAlignments", "VariantAnnotation", "Biostrings"), version = "3.8")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("GenomicFeatures", version = "3.8")
+#BiocManager::install(c("ggbio", "GenomicAlignments", "VariantAnnotation", "Biostrings"), version = "3.8")
+
+source("https://bioconductor.org/biocLite.R")
+BiocInstaller::biocLite("ggbio")
 
 # If the package lives on github
 library(devtools)
@@ -63,7 +64,7 @@ ecoli$author <- gsub("et al", "et al.", ecoli$author)
 
 # how many samples came from each study?
 ecoli %>%
-  group_by(reference) %>%
+  group_by(author) %>%
   tally()
 
 # How many different generations exist in the data?
@@ -83,11 +84,11 @@ library(Biostrings)
 
 # download two E. coli genomes
 # rel 606
-url <- "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/017/985/GCF_000017985.1_ASM1798v1/GCF_000017985.1_ASM1798v1_protein.faa.gz"
+url <- "https://github.com/ngs-docs/2018-ggg201a/blob/master/data2/GCF_000017985.1_ASM1798v1_protein.faa.gz?raw=true"
 download.file(url = url, destfile = "data2/GCF_000017985.1_ASM1798v1_protein.faa.gz")
 
 # k-12
-url <- "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/005/845/GCA_000005845.2_ASM584v2/GCA_000005845.2_ASM584v2_protein.faa.gz"
+url <- "https://github.com/ngs-docs/2018-ggg201a/blob/master/data2/GCA_000005845.2_ASM584v2_protein.faa.gz?raw=true"
 download.file(url = url, destfile = "data2/GCA_000005845.2_ASM584v2_protein.faa.gz")
 
 # read in the files
