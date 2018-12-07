@@ -191,20 +191,14 @@ ggplot(nc) +
 
 ## ggbio
 # download some more data
-url = "http://biocluster.ucr.edu/~tgirke/HTML_Presentations/Manuals/Workshop_Dec_12_16_2013/Rgraphics/data.zip"
+url <- "http://biocluster.ucr.edu/~tgirke/HTML_Presentations/Manuals/Workshop_Dec_12_16_2013/Rgraphics/data.zip"
 download.file(url = url, destfile = "data2/data.zip")
 unzip("data2/data.zip", exdir = "data2")
 list.files("data2")
 
-#library(rtracklayer)
-library(GenomicFeatures)
-library(GenomicAlignments)
-library(VariantAnnotation)
-
 ga <- readGAlignments(file = "data2/data/SRR064167.fastq.bam", 
                       use.names=TRUE, 
                       param=ScanBamParam(which=GRanges("Chr5", IRanges(4000, 8000))))
-
 
 p1 <- autoplot(ga)
 p1
@@ -222,7 +216,7 @@ p3 <- autoplot(vcf[seqnames(vcf)=="Chr5"], type = "fixed") +
               axis.text.y = element_blank(), 
               axis.ticks.y=element_blank())
 
-txdb <- makeTxDbFromGFF(file="./data/TAIR10_GFF3_trunc.gff", 
+txdb <- makeTxDbFromGFF(file="data2/data/TAIR10_GFF3_trunc.gff", 
                         format="gff3")
 
 p4 <- autoplot(txdb, 
