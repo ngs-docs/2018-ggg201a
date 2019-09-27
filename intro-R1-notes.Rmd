@@ -30,7 +30,9 @@ Each line begins with a `#`. Any line in a script that begins with a `#` demarca
 
 Next, we load package libraries that allow R to do new things
 ```{r libraries}
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 library(vegan)
 library(pheatmap)
 ```
