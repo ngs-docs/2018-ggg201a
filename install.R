@@ -1,7 +1,7 @@
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocInstaller::install(c("GenomicAlignments", "VariantAnnotation", "Biostrings", "GenomicFeatures"))
+BiocManager::install(c("GenomicAlignments", "VariantAnnotation", "Biostrings", "GenomicFeatures"))
 
 install.packages("ggplot2")
 install.packages("tidyr")
